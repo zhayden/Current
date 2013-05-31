@@ -13,25 +13,27 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	
 	cscene = new CollisionScene();
 	
-	ground = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 100,.1,10);
-	ground->setPosition(0,-5,0);
-	ground->setColor(0,0,.4,1);
-	cscene->addCollisionChild(ground);
+	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));
+	sections[0].walls[0]->setColor(0,0,.4,1);
+	sections[0].walls[1]->setColor(0,0,.8,1);
+	sections[0].walls[2]->setColor(0,0,.5,1);
+	sections[0].walls[3]->setColor(0,0,.5,1);
+	cscene->addCollisionChild(sections[0].walls[0]);
+	cscene->addCollisionChild(sections[0].walls[1]);
+	cscene->addCollisionChild(sections[0].walls[2]);
+	cscene->addCollisionChild(sections[0].walls[3]);
 	
-	ScenePrimitive *lwall = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 100,10,.1);
-	lwall->setColor(0,0,.5,1);
-	lwall->setPosition(0,0,5);
-	cscene->addCollisionChild(lwall);
+	sections.push_back(section(6, 8, 20, Vector3(39,0,0)));
+	sections[1].walls[0]->setColor(0,0,.4,1);
+	sections[1].walls[1]->setColor(0,0,.8,1);
+	sections[1].walls[2]->setColor(0,0,.5,1);
+	sections[1].walls[3]->setColor(0,0,.5,1);
+	cscene->addCollisionChild(sections[1].walls[0]);
+	cscene->addCollisionChild(sections[1].walls[1]);
+	cscene->addCollisionChild(sections[1].walls[2]);
+	cscene->addCollisionChild(sections[1].walls[3]);
+
 	
-	ScenePrimitive *rwall = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 100,10,.1);
-	rwall->setColor(0,0,.5,1);
-	rwall->setPosition(0,0,-5);
-	cscene->addCollisionChild(rwall);
-	
-	ScenePrimitive *top = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 100,.1,10);
-	top->setColor(0,0,.8,1);
-	top->setPosition(0,5.05,0);
-	cscene->addCollisionChild(top);
 	
 	obj = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 1,1,1);
 	obj->setPosition(Vector3(10,-1,0));
@@ -57,16 +59,16 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 			case InputEvent::EVENT_KEYDOWN:
 				switch (inputEvent->keyCode()) {		
 					case KEY_UP:
-						yspeed = 1;
+						yspeed = MOVE_SPEED;
 					break;
 					case KEY_DOWN:
-						yspeed = -1;
+						yspeed = -MOVE_SPEED;
 					break;
 					case KEY_LEFT:
-						zspeed = -1;
+						zspeed = -MOVE_SPEED;
 					break;
 					case KEY_RIGHT:
-						zspeed = 1;
+						zspeed = MOVE_SPEED;
 					break;														
 				}
 			break;
@@ -91,23 +93,74 @@ HelloPolycodeApp::~HelloPolycodeApp() {
 }
 
 bool HelloPolycodeApp::Update() {
+	//find section obj is in
+	int sec;
+	for(sec=0; sec<sections.size(); ++sec){	//Loop through sections
+		if(sections[sec].inSection(obj->getPosition())){	//If in section
+			break;
+		}
+	}
+	if(sec >= sections.size()){
+		sec = 0;
+	}
 	Number elapsed = core->getElapsed();
+	Number speed = 100/sections[sec].getArea()*elapsed*MOVE_SPEED;
+	
 	Vector3 pos = obj->getPosition();
 	pos.y += yspeed*elapsed;
 	pos.z += zspeed*elapsed;
+	pos.x += speed;
 	obj->setPosition(pos);
 	
 	cscene->getActiveCamera()->lookAt(pos);
+	Vector3 direction = obj->getPosition() - cscene->getActiveCamera()->getPosition();
+	//direction.Normalize();
+	direction = direction * (MOVE_SPEED/2*elapsed);
+	direction.x = speed;
+	
+	cscene->getActiveCamera()->setPosition(cscene->getActiveCamera()->getPosition() + direction);
+	
 	
 	//Test collision
-	CollisionResult res = cscene->testCollision(obj, ground);
-	if(res.collided) {
-		obj->setColor(0,.5,0,1);
-		pos += res.colNormal*res.colDist;
-		obj->setPosition(pos);
-	} else {
-		obj->setColor(.5,0,0,1);
+	for(int j=0; j<sections[sec].walls.size(); ++j){	//Loop through walls in section
+		CollisionResult res = cscene->testCollision(obj, sections[sec].walls[j]);
+		if(res.collided) {
+			//obj->setColor(0,.5,0,1);
+			pos += res.colNormal*res.colDist;
+			obj->setPosition(pos);
+		} else {
+			//obj->setColor(.5,0,0,1);
+		}
 	}
 	
     return core->updateAndRender();
+}
+
+section::section(Number height, Number width, Number depth, Vector3 pos)
+	:height(height), width(width), depth(depth), walls(), position(pos){
+	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth,.1, width));
+	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth,.1, width));
+	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth, height, .1));
+	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth, height, .1));
+	setPosition(pos);
+}
+
+void section::setPosition(Vector3 pos){
+	position = pos;
+	walls[0]->setPosition(position+Vector3(0,-height/2,0));
+	walls[1]->setPosition(position+Vector3(0,height/2,0));
+	walls[2]->setPosition(position+Vector3(0,0,-width/2));
+	walls[3]->setPosition(position+Vector3(0,0,width/2));
+}
+
+void section::setPosition(Number x, Number y, Number z){
+	setPosition(Vector3(x,y,z));
+}
+
+bool section::inSection(Vector3 loc){
+	return loc.x >= position.x-depth/2 && loc.x <= position.x+depth/2;
+}
+
+Number section::getArea(){
+	return width*height;
 }
