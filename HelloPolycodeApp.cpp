@@ -76,9 +76,15 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	zspeed=0;
 
 	boost = 10;
-	
-	cscene->getActiveCamera()->setPosition(0,0,0);
-	cscene->getActiveCamera()->lookAt(Vector3(10,-1,0));
+
+	cam1 = new Camera(cscene);
+	cam1->setPosition(0,0,0);
+	cam1->lookAt(Vector3(10,0,0));
+
+	cam2 = new Camera(cscene);
+	cam2->setPosition(0,0,0);
+	cam2->lookAt(Vector3(10,-1,0));
+	cscene->setActiveCamera(cam2);
 	
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYDOWN);
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYUP);
@@ -93,27 +99,41 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 			case InputEvent::EVENT_KEYDOWN:
 				switch (inputEvent->keyCode()) {		
 					case KEY_UP:
+					case KEY_w:
 						y_in = 1;
 					break;
 					case KEY_DOWN:
+					case KEY_s:
 						y_in = -1;
 					break;
 					case KEY_LEFT:
+					case KEY_a:
 						z_in = -1;
 					break;
 					case KEY_RIGHT:
+					case KEY_d:
 						z_in = 1;
-					break;														
+					break;
+					case KEY_F1:
+						cscene->setActiveCamera(cam1);
+					break;
+					case KEY_F2:
+						cscene->setActiveCamera(cam2);
+					break;
 				}
 			break;
 			case InputEvent::EVENT_KEYUP:
 				switch (inputEvent->key) {
 					case KEY_UP:
 					case KEY_DOWN:
+					case KEY_w:
+					case KEY_s:
 						y_in = 0;			
 					break;					
 					case KEY_LEFT:
 					case KEY_RIGHT:
+					case KEY_a:
+					case KEY_d:
 						z_in = 0;
 					break;										
 				}
@@ -185,16 +205,18 @@ bool HelloPolycodeApp::Update() {
 	pos.z += zspeed*elapsed;
 	pos.x += speed;
 	obj->setPosition(pos);
+
+	Number xl = pos.x;	//Remember correct x pos. This is the plane.
 	
-	//Update Camera
-	cscene->getActiveCamera()->lookAt(pos);
-	Vector3 direction = obj->getPosition() - cscene->getActiveCamera()->getPosition();
+	//Update Cameras
+	cam2->lookAt(pos);
+	Vector3 direction = obj->getPosition() - cam2->getPosition();
 	//direction.Normalize();
 	direction = direction * (MOVE_SPEED/2*elapsed);
 	direction.x = speed;
 	
-	cscene->getActiveCamera()->setPosition(cscene->getActiveCamera()->getPosition() + direction);
-	
+	cam2->setPosition(cam2->getPosition() + direction);
+	cam1->Translate(speed,0,0);
 	
 	//Test collision
 	for(int j=0; j<sections[sec].walls.size(); ++j){	//Loop through walls in section
@@ -207,6 +229,8 @@ bool HelloPolycodeApp::Update() {
 			//obj->setColor(.5,0,0,1);
 		}
 	}
+
+	obj->setPositionX(xl);	//Fix x pos (collisions may have thrown it off)
 	
     return core->updateAndRender();
 }

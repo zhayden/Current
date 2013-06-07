@@ -43,6 +43,7 @@ private:
 	ScreenLabel *boost_l;
 	ScreenLabel *speed_l;
 	CollisionScene *cscene;
+	Camera *cam1, *cam2;
 	ScenePrimitive *obj;
 	Number yspeed;
 	Number zspeed;
