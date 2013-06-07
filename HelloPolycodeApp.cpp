@@ -15,6 +15,7 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	
 	cscene = new CollisionScene();
 	
+	//Create tunnel sections
 	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));
 	sections[0].walls[0]->setColor(0,0,.4,1);
 	sections[0].walls[1]->setColor(0,0,.8,1);
@@ -51,12 +52,14 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	sections[5].walls[2]->setColor(0,0,.3,1);
 	sections[5].walls[3]->setColor(0,0,.3,1);
 
+	//Add tunnel sections to scene
 	for(int i=0; i<sections.size(); ++i){
 		for(int j=0; j<sections[i].walls.size(); ++j){
 			cscene->addCollisionChild(sections[i].walls[j]);
 		}
 	}
 	
+	//player
 	obj = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 1,1,1);
 	obj->setPosition(Vector3(10,-1,0));
 	obj->setColor(.5,0,0,1);
