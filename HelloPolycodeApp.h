@@ -40,10 +40,13 @@ public:
 private:
 	Core *core;
 	ScreenLabel *label;
+	ScreenLabel *boost_l;
+	ScreenLabel *speed_l;
 	CollisionScene *cscene;
 	ScenePrimitive *obj;
 	Number yspeed;
 	Number zspeed;
+	Number boost;
 	int x_in, y_in, z_in;
 	
 	std::vector<section> sections;	

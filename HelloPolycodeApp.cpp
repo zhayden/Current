@@ -12,6 +12,9 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	Screen *screen = new Screen();
 	label = new ScreenLabel("Welcome to the Flow", 32);
 	screen->addChild(label);
+	speed_l = new ScreenLabel("Speed: 0", 28);
+	speed_l->setPosition(480,0);
+	screen->addChild(speed_l);
 	
 	cscene = new CollisionScene();
 	
@@ -71,6 +74,8 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	
 	yspeed=0;
 	zspeed=0;
+
+	boost = 10;
 	
 	cscene->getActiveCamera()->setPosition(0,0,0);
 	cscene->getActiveCamera()->lookAt(Vector3(10,-1,0));
@@ -131,11 +136,21 @@ bool HelloPolycodeApp::Update() {
 			break;
 		}
 	}
+	if(sec > 3){
+		label->setText("");	//Turn off intro msg after a little while
+	}
 	if(sec >= sections.size()){
 		sec = 0;
+		label->setText("Game Over");	//Turn on end msg when no more sections
 	}
+	
+	Number speed = 100/sections[sec].getArea(pos)*MOVE_SPEED;
+	std::stringstream ss;
+	ss << "Speed: " << (int)speed;
+	speed_l->setText(ss.str());		//output speed
+
 	Number elapsed = core->getElapsed();
-	Number speed = 100/sections[sec].getArea(pos)*elapsed*MOVE_SPEED;
+	speed *= elapsed;
 	
 	//Update speed
 	if(y_in){
