@@ -5,9 +5,12 @@
 
 using namespace Polycode;
 
-#define MOVE_SPEED 4.0
+#define MOVE_SPEED 4.0		//speed when area == 100
 #define MOVE_SPEED_STEP 0.1
 #define MAX_MOVE_SPEED 4.0
+#define MAX_BOOST 10
+#define BOOST_RATE 5	//points per second
+#define BOOST_BURN 20
 
 enum section_type {normal, transition};
 
@@ -45,6 +48,7 @@ private:
 	CollisionScene *cscene;
 	Camera *cam1, *cam2;
 	ScenePrimitive *obj;
+	Number home;
 	Number yspeed;
 	Number zspeed;
 	Number boost;

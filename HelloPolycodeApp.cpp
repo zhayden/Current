@@ -12,9 +12,14 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	Screen *screen = new Screen();
 	label = new ScreenLabel("Welcome to the Flow", 32);
 	screen->addChild(label);
+
 	speed_l = new ScreenLabel("Speed: 0", 28);
 	speed_l->setPosition(480,0);
 	screen->addChild(speed_l);
+
+	boost_l = new ScreenLabel("Boost: 0", 28);
+	boost_l->setPosition(480, 30);
+	screen->addChild(boost_l);
 	
 	cscene = new CollisionScene();
 	
@@ -55,6 +60,12 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	sections[5].walls[2]->setColor(0,0,.3,1);
 	sections[5].walls[3]->setColor(0,0,.3,1);
 
+	sections.push_back(section(4, 8, 8, 4, 500, Vector3(507,0,0)));
+	sections[6].walls[0]->setColor(0,0,.2,1);
+	sections[6].walls[1]->setColor(0,0,.2,1);
+	sections[6].walls[2]->setColor(0,0,.3,1);
+	sections[6].walls[3]->setColor(0,0,.3,1);
+
 	//Add tunnel sections to scene
 	for(int i=0; i<sections.size(); ++i){
 		for(int j=0; j<sections[i].walls.size(); ++j){
@@ -67,6 +78,8 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	obj->setPosition(Vector3(10,-1,0));
 	obj->setColor(.5,0,0,1);
 	cscene->addCollisionChild(obj);
+
+	home = 10;
 	
 	x_in = 0;
 	y_in = 0;
@@ -75,8 +88,9 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	yspeed=0;
 	zspeed=0;
 
-	boost = 10;
+	boost = 0;
 
+	//cameras
 	cam1 = new Camera(cscene);
 	cam1->setPosition(0,0,0);
 	cam1->lookAt(Vector3(10,0,0));
@@ -120,6 +134,12 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 					case KEY_F2:
 						cscene->setActiveCamera(cam2);
 					break;
+					case KEY_LSHIFT:
+						x_in = 1;
+					break;
+					case KEY_LCTRL:
+						x_in = -1;
+					break;
 				}
 			break;
 			case InputEvent::EVENT_KEYUP:
@@ -135,7 +155,11 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 					case KEY_a:
 					case KEY_d:
 						z_in = 0;
-					break;										
+					break;
+					case KEY_LSHIFT:
+					case KEY_LCTRL:
+						x_in = 0;
+					break;
 				}
 			break;			
 		}
@@ -171,8 +195,10 @@ bool HelloPolycodeApp::Update() {
 
 	Number elapsed = core->getElapsed();
 	speed *= elapsed;
+
+	home += speed;	//Update home position
 	
-	//Update speed
+	//Update speeds
 	if(y_in){
 		yspeed += y_in*MOVE_SPEED_STEP;
 		if(yspeed > MAX_MOVE_SPEED) yspeed = MAX_MOVE_SPEED;
@@ -199,26 +225,26 @@ bool HelloPolycodeApp::Update() {
 			if(zspeed > 0) zspeed = 0;
 		}
 	}
+	if(x_in && boost > 0){
+		pos.x += x_in*MAX_MOVE_SPEED*elapsed;
+		boost -= BOOST_BURN*elapsed;
+	}
+
+	//recharge boost
+	if(boost < MAX_BOOST){
+		boost += BOOST_RATE*elapsed;
+	}
+	ss.str("");
+	ss << "Boost: " << (int)boost;
+	boost_l->setText(ss.str());
 	
 	//Update position
 	pos.y += yspeed*elapsed;
 	pos.z += zspeed*elapsed;
 	pos.x += speed;
 	obj->setPosition(pos);
-
-	Number xl = pos.x;	//Remember correct x pos. This is the plane.
 	
-	//Update Cameras
-	cam2->lookAt(pos);
-	Vector3 direction = obj->getPosition() - cam2->getPosition();
-	//direction.Normalize();
-	direction = direction * (MOVE_SPEED/2*elapsed);
-	direction.x = speed;
-	
-	cam2->setPosition(cam2->getPosition() + direction);
-	cam1->Translate(speed,0,0);
-	
-	//Test collision
+	//Test collisions
 	for(int j=0; j<sections[sec].walls.size(); ++j){	//Loop through walls in section
 		CollisionResult res = cscene->testCollision(obj, sections[sec].walls[j]);
 		if(res.collided) {
@@ -230,7 +256,31 @@ bool HelloPolycodeApp::Update() {
 		}
 	}
 
-	obj->setPositionX(xl);	//Fix x pos (collisions may have thrown it off)
+	//Return to home x pos (collisions/movement may have thrown it off)
+	if(pos.x != home){
+		if(pos.x < home){
+			pos.x += MOVE_SPEED/2*elapsed;
+			if(pos.x > home){
+				pos.x = home;
+			}
+		}else{//obj->getPosition().x > home
+			pos.x -= MOVE_SPEED/2*elapsed;
+			if(pos.x < home){
+				pos.x = home;
+			}
+		}
+		obj->setPosition(pos);
+	}
+
+	//Update Cameras
+	cam2->lookAt(pos);
+	Vector3 direction = obj->getPosition() - cam2->getPosition();
+	//direction.Normalize();
+	direction = direction * (MOVE_SPEED/2*elapsed);
+	direction.x = speed;
+	
+	cam2->Translate(direction);
+	cam1->Translate(speed,0,0);
 	
     return core->updateAndRender();
 }
