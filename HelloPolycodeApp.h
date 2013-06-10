@@ -8,6 +8,7 @@ using namespace Polycode;
 #define MOVE_SPEED 4.0		//speed when area == 100
 #define MOVE_SPEED_STEP 0.1
 #define MAX_MOVE_SPEED 4.0
+
 #define MAX_BOOST 10
 #define BOOST_RATE 5	//points per second
 #define BOOST_BURN 20
@@ -16,8 +17,8 @@ enum section_type {normal, transition};
 
 struct section {
 	section_type type;
-	Number height, width, depth;
-	Number height1, width1, height2, width2;
+	Number height, width, depth;	//Normal dimensions of section
+	Number height1, width1, height2, width2;	//dimentions of ends for transition sections
 	Vector3 position;
 	std::vector<ScenePrimitive*> walls;
 	std::vector<ScenePrimitive*> obstacles;
@@ -48,12 +49,12 @@ private:
 	CollisionScene *cscene;
 	Camera *cam1, *cam2;
 	ScenePrimitive *obj;
-	Number home;
+	Number home;	//stores current home x-coordinate
 	Number yspeed;
 	Number zspeed;
 	Number boost;
-	int x_in, y_in, z_in;
+	short int x_in, y_in, z_in;
 	
-	std::vector<section> sections;	
+	std::vector<section> sections;
 };
 

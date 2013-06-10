@@ -22,6 +22,8 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	screen->addChild(boost_l);
 	
 	cscene = new CollisionScene();
+
+	ScenePrimitive *tmp;
 	
 	//Create tunnel sections
 	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));
@@ -53,6 +55,16 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	sections[4].walls[1]->setColor(0,0,.8,1);
 	sections[4].walls[2]->setColor(0,0,.5,1);
 	sections[4].walls[3]->setColor(0,0,.5,1);
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp->setColor(0,.8,0,1);
+	tmp->setPosition(Vector3(-40, 1,1) + sections[4].position);
+	sections[4].obstacles.push_back(tmp);
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp->setColor(0,.8,0,1);
+	tmp->setPosition(Vector3(-35, -1,-1) + sections[4].position);
+	sections[4].obstacles.push_back(tmp);
 	
 	sections.push_back(section(4, 4, 4, 8, 100, Vector3(207,0,0)));
 	sections[5].walls[0]->setColor(0,0,.2,1);
@@ -70,6 +82,9 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	for(int i=0; i<sections.size(); ++i){
 		for(int j=0; j<sections[i].walls.size(); ++j){
 			cscene->addCollisionChild(sections[i].walls[j]);
+		}
+		for(int j=0; j<sections[i].obstacles.size(); ++j){
+			cscene->addCollisionChild(sections[i].obstacles[j]);
 		}
 	}
 	
@@ -248,23 +263,26 @@ bool HelloPolycodeApp::Update() {
 	for(int j=0; j<sections[sec].walls.size(); ++j){	//Loop through walls in section
 		CollisionResult res = cscene->testCollision(obj, sections[sec].walls[j]);
 		if(res.collided) {
-			//obj->setColor(0,.5,0,1);
 			pos += res.colNormal*res.colDist;
 			obj->setPosition(pos);
-		} else {
-			//obj->setColor(.5,0,0,1);
+		}
+	}
+	for(int j=0; j<sections[sec].obstacles.size(); ++j){
+		CollisionResult res = cscene->testCollision(obj, sections[sec].obstacles[j]);
+		if(res.collided) {
+			//TO DO
 		}
 	}
 
 	//Return to home x pos (collisions/movement may have thrown it off)
 	if(pos.x != home){
 		if(pos.x < home){
-			pos.x += MOVE_SPEED/2*elapsed;
+			pos.x += MOVE_SPEED/4*elapsed;
 			if(pos.x > home){
 				pos.x = home;
 			}
 		}else{//obj->getPosition().x > home
-			pos.x -= MOVE_SPEED/2*elapsed;
+			pos.x -= MOVE_SPEED/4*elapsed;
 			if(pos.x < home){
 				pos.x = home;
 			}
