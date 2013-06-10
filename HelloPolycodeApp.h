@@ -54,6 +54,9 @@ private:
 	Number zspeed;
 	Number boost;
 	short int x_in, y_in, z_in;
+
+	Number max_move, max_boost, boost_rate;
+	Color more_boost, less_boost, faster_move, slower_move, faster_recharge, slower_recharge;
 	
 	std::vector<section> sections;
 };

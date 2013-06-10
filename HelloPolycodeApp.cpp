@@ -23,6 +23,13 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	
 	cscene = new CollisionScene();
 
+	more_boost = Color(0x00CC00FF);
+	less_boost = Color(0x806600FF);
+	faster_move = Color(0x9900FFFF);
+	slower_move = Color(0xCC2900FF);
+	faster_recharge = Color(0xFFFF00FF);
+	slower_recharge = Color(0xFF3300FF);
+
 	ScenePrimitive *tmp;
 	
 	//Create tunnel sections
@@ -31,6 +38,36 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	sections[0].walls[1]->setColor(0,0,.8,1);
 	sections[0].walls[2]->setColor(0,0,.5,1);
 	sections[0].walls[3]->setColor(0,0,.5,1);
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp->setColor(more_boost);
+	tmp->setPosition(Vector3(4, 4,4) + sections[0].position);
+	sections[0].obstacles.push_back(tmp);
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp->setColor(less_boost);
+	tmp->setPosition(Vector3(4, 4,-4) + sections[0].position);
+	sections[0].obstacles.push_back(tmp);
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp->setColor(faster_move);
+	tmp->setPosition(Vector3(4, 0,4) + sections[0].position);
+	sections[0].obstacles.push_back(tmp);
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp->setColor(slower_move);
+	tmp->setPosition(Vector3(4, 0,-4) + sections[0].position);
+	sections[0].obstacles.push_back(tmp);
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp->setColor(faster_recharge);
+	tmp->setPosition(Vector3(4, -4,4) + sections[0].position);
+	sections[0].obstacles.push_back(tmp);
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp->setColor(slower_recharge);
+	tmp->setPosition(Vector3(4, -4,-4) + sections[0].position);
+	sections[0].obstacles.push_back(tmp);	
 	
 	sections.push_back(section(10, 10, 6, 8, 4, Vector3(31,0,0)));
 	sections[1].walls[0]->setColor(0,0,.2,1);
@@ -57,12 +94,12 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	sections[4].walls[3]->setColor(0,0,.5,1);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(0,.8,0,1);
+	tmp->setColor(more_boost);
 	tmp->setPosition(Vector3(-40, 1,1) + sections[4].position);
 	sections[4].obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(0,.8,0,1);
+	tmp->setColor(more_boost);
 	tmp->setPosition(Vector3(-35, -1,-1) + sections[4].position);
 	sections[4].obstacles.push_back(tmp);
 	
@@ -103,7 +140,11 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	yspeed=0;
 	zspeed=0;
 
-	boost = 0;
+	boost = MAX_BOOST;
+
+	max_move = MAX_MOVE_SPEED;
+	max_boost = MAX_BOOST;
+	boost_rate = BOOST_RATE;
 
 	//cameras
 	cam1 = new Camera(cscene);
@@ -214,10 +255,11 @@ bool HelloPolycodeApp::Update() {
 	home += speed;	//Update home position
 	
 	//Update speeds
-	if(y_in){
+	if(y_in && boost > 0){
 		yspeed += y_in*MOVE_SPEED_STEP;
-		if(yspeed > MAX_MOVE_SPEED) yspeed = MAX_MOVE_SPEED;
-		else if(yspeed < -MAX_MOVE_SPEED) yspeed = -MAX_MOVE_SPEED;
+		boost -= BOOST_BURN*elapsed;
+		if(yspeed > max_move) yspeed = max_move;
+		else if(yspeed < -max_move) yspeed = -max_move;
 	}else if(yspeed){
 		if(yspeed > 0){
 			yspeed -= MOVE_SPEED_STEP;
@@ -227,10 +269,11 @@ bool HelloPolycodeApp::Update() {
 			if(yspeed > 0) yspeed = 0;
 		}
 	}
-	if(z_in){
+	if(z_in && boost > 0){
 		zspeed += z_in*MOVE_SPEED_STEP;
-		if(zspeed > MAX_MOVE_SPEED) zspeed = MAX_MOVE_SPEED;
-		else if(zspeed < -MAX_MOVE_SPEED) zspeed = -MAX_MOVE_SPEED;
+		boost -= BOOST_BURN*elapsed;
+		if(zspeed > max_move) zspeed = max_move;
+		else if(zspeed < -max_move) zspeed = -max_move;
 	}else if(zspeed){
 		if(zspeed > 0){
 			zspeed -= MOVE_SPEED_STEP;
@@ -241,13 +284,13 @@ bool HelloPolycodeApp::Update() {
 		}
 	}
 	if(x_in && boost > 0){
-		pos.x += x_in*MAX_MOVE_SPEED*elapsed;
+		pos.x += x_in*max_move*elapsed;
 		boost -= BOOST_BURN*elapsed;
 	}
 
 	//recharge boost
-	if(boost < MAX_BOOST){
-		boost += BOOST_RATE*elapsed;
+	if(boost < max_boost){
+		boost += boost_rate*elapsed;
 	}
 	ss.str("");
 	ss << "Boost: " << (int)boost;
@@ -270,7 +313,29 @@ bool HelloPolycodeApp::Update() {
 	for(int j=0; j<sections[sec].obstacles.size(); ++j){
 		CollisionResult res = cscene->testCollision(obj, sections[sec].obstacles[j]);
 		if(res.collided) {
-			//TO DO
+			ScenePrimitive *ob = sections[sec].obstacles[j];
+			if(ob->color == more_boost){
+				max_boost += 5;
+				cscene->removeEntity(ob);
+			}else if(ob->color == less_boost){
+				max_boost -= 5;
+				if(max_boost < 0){max_boost = 0;}
+				cscene->removeEntity(ob);
+			}else if(ob->color == faster_move){
+				max_move += 1;
+				cscene->removeEntity(ob);
+			}else if(ob->color == slower_move){
+				max_move -= 1;
+				if(max_move < 0){max_move = 0;}
+				cscene->removeEntity(ob);
+			}else if(ob->color == faster_recharge){
+				boost_rate += 2;
+				cscene->removeEntity(ob);
+			}else if(ob->color == slower_recharge){
+				boost_rate -= 2;
+				if(boost_rate < 0){boost_rate = 0;}
+				cscene->removeEntity(ob);
+			}
 		}
 	}
 
