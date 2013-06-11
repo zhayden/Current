@@ -187,6 +187,15 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 						cam2->setPosition(0,0,0);
 						home = 10;
 						label->setText("Welcome to the Flow");
+						boost = MAX_BOOST;
+						max_move = MAX_MOVE_SPEED;
+						max_boost = MAX_BOOST;
+						boost_rate = BOOST_RATE;
+						for(int i=0; i<sections.size(); ++i){
+							for(int j=0; j<sections[i].obstacles.size(); ++j){
+								sections[i].obstacles[j]->enabled = true;
+							}
+						}
 					break;
 				}
 			break;
@@ -312,30 +321,31 @@ bool HelloPolycodeApp::Update() {
 		}
 	}
 	for(int j=0; j<sections[sec].obstacles.size(); ++j){
+		if(!sections[sec].obstacles[j]->enabled){continue;}
 		CollisionResult res = cscene->testCollision(obj, sections[sec].obstacles[j]);
 		if(res.collided) {
 			ScenePrimitive *ob = sections[sec].obstacles[j];
 			if(ob->color == more_boost){
 				max_boost += 5;
-				cscene->removeEntity(ob);
+				ob->enabled = false;
 			}else if(ob->color == less_boost){
 				max_boost -= 5;
 				if(max_boost < 0){max_boost = 0;}
-				cscene->removeEntity(ob);
+				ob->enabled = false;
 			}else if(ob->color == faster_move){
 				max_move += 1;
-				cscene->removeEntity(ob);
+				ob->enabled = false;
 			}else if(ob->color == slower_move){
 				max_move -= 1;
 				if(max_move < 0){max_move = 0;}
-				cscene->removeEntity(ob);
+				ob->enabled = false;
 			}else if(ob->color == faster_recharge){
 				boost_rate += 2;
-				cscene->removeEntity(ob);
+				ob->enabled = false;
 			}else if(ob->color == slower_recharge){
 				boost_rate -= 2;
 				if(boost_rate < 0){boost_rate = 0;}
-				cscene->removeEntity(ob);
+				ob->enabled = false;
 			}
 		}
 	}
