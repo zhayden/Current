@@ -9,7 +9,7 @@ using namespace Polycode;
 #define MOVE_SPEED_STEP 0.1
 #define MAX_MOVE_SPEED 4.0
 
-#define MAX_BOOST 10
+#define MAX_BOOST 20
 #define BOOST_RATE 5	//points per second
 #define BOOST_BURN 20
 
@@ -47,7 +47,7 @@ private:
 	ScreenLabel *boost_l;
 	ScreenLabel *speed_l;
 	CollisionScene *cscene;
-	Camera *cam1, *cam2;
+	Camera *cam1, *cam2, *cam3;
 	ScenePrimitive *obj;
 	Number home;	//stores current home x-coordinate
 	Number yspeed;

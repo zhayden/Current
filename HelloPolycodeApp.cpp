@@ -34,86 +34,60 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	
 	//Create tunnel sections
 	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));
-	sections[0].walls[0]->setColor(0,0,.4,1);
-	sections[0].walls[1]->setColor(0,0,.8,1);
-	sections[0].walls[2]->setColor(0,0,.5,1);
-	sections[0].walls[3]->setColor(0,0,.5,1);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(more_boost);
-	tmp->setPosition(Vector3(4, 4,4) + sections[0].position);
-	sections[0].obstacles.push_back(tmp);
+	tmp->setPosition(Vector3(4, 4,4) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(less_boost);
-	tmp->setPosition(Vector3(4, 4,-4) + sections[0].position);
-	sections[0].obstacles.push_back(tmp);
+	tmp->setPosition(Vector3(4, 4,-4) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(faster_move);
-	tmp->setPosition(Vector3(4, 0,4) + sections[0].position);
-	sections[0].obstacles.push_back(tmp);
+	tmp->setPosition(Vector3(4, 0,4) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(slower_move);
-	tmp->setPosition(Vector3(4, 0,-4) + sections[0].position);
-	sections[0].obstacles.push_back(tmp);
+	tmp->setPosition(Vector3(4, 0,-4) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(faster_recharge);
-	tmp->setPosition(Vector3(4, -4,4) + sections[0].position);
-	sections[0].obstacles.push_back(tmp);
+	tmp->setPosition(Vector3(4, -4,4) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(slower_recharge);
-	tmp->setPosition(Vector3(4, -4,-4) + sections[0].position);
-	sections[0].obstacles.push_back(tmp);	
+	tmp->setPosition(Vector3(4, -4,-4) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);	
 	
-	sections.push_back(section(10, 10, 6, 8, 4, Vector3(31,0,0)));
-	sections[1].walls[0]->setColor(0,0,.2,1);
-	sections[1].walls[1]->setColor(0,0,.2,1);
-	sections[1].walls[2]->setColor(0,0,.3,1);
-	sections[1].walls[3]->setColor(0,0,.3,1);
-	
+	sections.push_back(section(10, 10, 6, 8, 4, Vector3(31,0,0)));	
 	sections.push_back(section(6, 8, 20, Vector3(43,0,0)));
-	sections[2].walls[0]->setColor(0,0,.4,1);
-	sections[2].walls[1]->setColor(0,0,.8,1);
-	sections[2].walls[2]->setColor(0,0,.5,1);
-	sections[2].walls[3]->setColor(0,0,.5,1);
-	
-	sections.push_back(section(6, 8, 4, 4, 4, Vector3(55,0,0)));
-	sections[3].walls[0]->setColor(0,0,.2,1);
-	sections[3].walls[1]->setColor(0,0,.2,1);
-	sections[3].walls[2]->setColor(0,0,.3,1);
-	sections[3].walls[3]->setColor(0,0,.3,1);
-	
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_BOX, .5,.5,.5);
+	tmp->setColor(.9,0,0,1);
+	tmp->setPosition(Vector3(0,0,0) + sections.back().position);
+	sections.back().enemies.push_back(tmp);
+
+	sections.push_back(section(6, 8, 4, 4, 4, Vector3(55,0,0)));	
 	sections.push_back(section(4, 4, 100, Vector3(107,0,0)));
-	sections[4].walls[0]->setColor(0,0,.4,1);
-	sections[4].walls[1]->setColor(0,0,.8,1);
-	sections[4].walls[2]->setColor(0,0,.5,1);
-	sections[4].walls[3]->setColor(0,0,.5,1);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(more_boost);
-	tmp->setPosition(Vector3(-40, 1,1) + sections[4].position);
-	sections[4].obstacles.push_back(tmp);
+	tmp->setColor(0,.8,0,1);
+	tmp->setPosition(Vector3(-40, 1,1) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(more_boost);
-	tmp->setPosition(Vector3(-35, -1,-1) + sections[4].position);
-	sections[4].obstacles.push_back(tmp);
+	tmp->setColor(0,.8,0,1);
+	tmp->setPosition(Vector3(-35, -1,-1) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 	
 	sections.push_back(section(4, 4, 4, 8, 100, Vector3(207,0,0)));
-	sections[5].walls[0]->setColor(0,0,.2,1);
-	sections[5].walls[1]->setColor(0,0,.2,1);
-	sections[5].walls[2]->setColor(0,0,.3,1);
-	sections[5].walls[3]->setColor(0,0,.3,1);
-
 	sections.push_back(section(4, 8, 8, 4, 500, Vector3(507,0,0)));
-	sections[6].walls[0]->setColor(0,0,.2,1);
-	sections[6].walls[1]->setColor(0,0,.2,1);
-	sections[6].walls[2]->setColor(0,0,.3,1);
-	sections[6].walls[3]->setColor(0,0,.3,1);
 
 	//Add tunnel sections to scene
 	for(int i=0; i<sections.size(); ++i){
@@ -122,6 +96,9 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 		}
 		for(int j=0; j<sections[i].obstacles.size(); ++j){
 			cscene->addCollisionChild(sections[i].obstacles[j]);
+		}
+		for(int j=0; j<sections[i].enemies.size(); ++j){
+			cscene->addCollisionChild(sections[i].enemies[j]);
 		}
 	}
 	
@@ -154,7 +131,12 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	cam2 = new Camera(cscene);
 	cam2->setPosition(0,0,0);
 	cam2->lookAt(Vector3(10,-1,0));
-	cscene->setActiveCamera(cam2);
+
+	cam3 = new Camera(cscene);
+	cam3->setPosition(0,0,0);
+	cam3->lookAt(Vector3(10,0,0));
+
+	cscene->setActiveCamera(cam3);
 	
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYDOWN);
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYUP);
@@ -190,11 +172,21 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 					case KEY_F2:
 						cscene->setActiveCamera(cam2);
 					break;
+					case KEY_F3:
+						cscene->setActiveCamera(cam3);
+					break;
 					case KEY_LSHIFT:
 						x_in = 1;
 					break;
 					case KEY_LCTRL:
 						x_in = -1;
+					break;
+					case KEY_SPACE:
+						obj->setPosition(10,-1,0);
+						cam1->setPosition(0,0,0);
+						cam2->setPosition(0,0,0);
+						home = 10;
+						label->setText("Welcome to the Flow");
 					break;
 				}
 			break;
@@ -240,8 +232,8 @@ bool HelloPolycodeApp::Update() {
 		label->setText("");	//Turn off intro msg after a little while
 	}
 	if(sec >= sections.size()){
-		sec = 0;
 		label->setText("Game Over");	//Turn on end msg when no more sections
+		return core->updateAndRender();
 	}
 	
 	Number speed = 100/sections[sec].getArea(pos)*MOVE_SPEED;
@@ -301,6 +293,15 @@ bool HelloPolycodeApp::Update() {
 	pos.z += zspeed*elapsed;
 	pos.x += speed;
 	obj->setPosition(pos);
+
+	//Update enemies
+	for(int j=0; j<sections[sec].enemies.size(); ++j){
+		Vector3 direction = pos - sections[sec].enemies[j]->getPosition();
+		direction.x = 0;
+		direction.Normalize();
+		direction = direction * MAX_MOVE_SPEED*elapsed / 4;
+		sections[sec].enemies[j]->Translate(direction);
+	}
 	
 	//Test collisions
 	for(int j=0; j<sections[sec].walls.size(); ++j){	//Loop through walls in section
@@ -338,6 +339,13 @@ bool HelloPolycodeApp::Update() {
 			}
 		}
 	}
+	for(int j=0; j<sections[sec].enemies.size(); ++j){
+		CollisionResult res = cscene->testCollision(obj, sections[sec].enemies[j]);
+		if(res.collided){
+			obj->setPosition(sections.back().position + Vector3(sections.back().depth,0,0));
+
+		}
+	}
 
 	//Return to home x pos (collisions/movement may have thrown it off)
 	if(pos.x != home){
@@ -364,6 +372,10 @@ bool HelloPolycodeApp::Update() {
 	
 	cam2->Translate(direction);
 	cam1->Translate(speed,0,0);
+
+	direction = obj->getPosition() * .25;
+	direction.x = home-10;
+	cam3->setPosition(direction);
 	
     return core->updateAndRender();
 }
@@ -376,6 +388,10 @@ section::section(Number height, Number width, Number depth, Vector3 pos)
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth, height, .1));
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth, height, .1));
 	setPosition(pos);
+	walls[0]->setColor(0,0,.4,1);
+	walls[1]->setColor(0,0,.8,1);
+	walls[2]->setColor(0,0,.5,1);
+	walls[3]->setColor(0,0,.5,1);
 }
 
 section::section(Number height1, Number width1, Number height2, Number width2, Number depth, Vector3 pos)
@@ -403,14 +419,27 @@ section::section(Number height1, Number width1, Number height2, Number width2, N
 	walls[3]->setYaw(yaw_angle);
 	
 	setPosition(pos);
+
+	walls[0]->setColor(0,0,.2,1);
+	walls[1]->setColor(0,0,.2,1);
+	walls[2]->setColor(0,0,.3,1);
+	walls[3]->setColor(0,0,.3,1);
 }
 
 void section::setPosition(Vector3 pos){
+	walls[0]->setPosition(pos+Vector3(0,-height/2,0));
+	walls[1]->setPosition(pos+Vector3(0,height/2,0));
+	walls[2]->setPosition(pos+Vector3(0,0,-width/2));
+	walls[3]->setPosition(pos+Vector3(0,0,width/2));
+	for(int i=0; i<obstacles.size(); ++i){
+		Vector3 loc = obstacles[i]->getPosition() - position;
+		obstacles[i]->setPosition(loc + pos);
+	}
+	for(int i=0; i<enemies.size(); ++i){
+		Vector3 loc = enemies[i]->getPosition() - position;
+		enemies[i]->setPosition(loc + pos);
+	}
 	position = pos;
-	walls[0]->setPosition(position+Vector3(0,-height/2,0));
-	walls[1]->setPosition(position+Vector3(0,height/2,0));
-	walls[2]->setPosition(position+Vector3(0,0,-width/2));
-	walls[3]->setPosition(position+Vector3(0,0,width/2));
 }
 
 void section::setPosition(Number x, Number y, Number z){
