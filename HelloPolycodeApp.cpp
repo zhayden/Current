@@ -32,21 +32,21 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_BOX, .5,.5,.5);
 	tmp->setColor(.9,0,0,1);
-	tmp->setPosition(Vector3(0,0,0) + sections[2].position);
-	sections[2].enemies.push_back(tmp);
+	tmp->setPosition(Vector3(0,0,0) + sections.back().position);
+	sections.back().enemies.push_back(tmp);
 
 	sections.push_back(section(6, 8, 4, 4, 4, Vector3(55,0,0)));	
 	sections.push_back(section(4, 4, 100, Vector3(107,0,0)));
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(0,.8,0,1);
-	tmp->setPosition(Vector3(-40, 1,1) + sections[4].position);
-	sections[4].obstacles.push_back(tmp);
+	tmp->setPosition(Vector3(-40, 1,1) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(0,.8,0,1);
-	tmp->setPosition(Vector3(-35, -1,-1) + sections[4].position);
-	sections[4].obstacles.push_back(tmp);
+	tmp->setPosition(Vector3(-35, -1,-1) + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
 	
 	sections.push_back(section(4, 4, 4, 8, 100, Vector3(207,0,0)));
 	sections.push_back(section(4, 8, 8, 4, 500, Vector3(507,0,0)));
@@ -89,7 +89,12 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	cam2 = new Camera(cscene);
 	cam2->setPosition(0,0,0);
 	cam2->lookAt(Vector3(10,-1,0));
-	cscene->setActiveCamera(cam2);
+
+	cam3 = new Camera(cscene);
+	cam3->setPosition(0,0,0);
+	cam3->lookAt(Vector3(10,0,0));
+
+	cscene->setActiveCamera(cam3);
 	
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYDOWN);
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYUP);
@@ -125,11 +130,21 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 					case KEY_F2:
 						cscene->setActiveCamera(cam2);
 					break;
+					case KEY_F3:
+						cscene->setActiveCamera(cam3);
+					break;
 					case KEY_LSHIFT:
 						x_in = 1;
 					break;
 					case KEY_LCTRL:
 						x_in = -1;
+					break;
+					case KEY_SPACE:
+						obj->setPosition(10,-1,0);
+						cam1->setPosition(0,0,0);
+						cam2->setPosition(0,0,0);
+						home = 10;
+						label->setText("Welcome to the Flow");
 					break;
 				}
 			break;
@@ -175,8 +190,8 @@ bool HelloPolycodeApp::Update() {
 		label->setText("");	//Turn off intro msg after a little while
 	}
 	if(sec >= sections.size()){
-		sec = 0;
 		label->setText("Game Over");	//Turn on end msg when no more sections
+		return core->updateAndRender();
 	}
 	
 	Number speed = 100/sections[sec].getArea(pos)*MOVE_SPEED;
@@ -261,7 +276,7 @@ bool HelloPolycodeApp::Update() {
 	for(int j=0; j<sections[sec].enemies.size(); ++j){
 		CollisionResult res = cscene->testCollision(obj, sections[sec].enemies[j]);
 		if(res.collided){
-			obj->setPosition(sections[sections.size()-1].position + Vector3(sections[sections.size()-1].depth,0,0));
+			obj->setPosition(sections.back().position + Vector3(sections.back().depth,0,0));
 
 		}
 	}
@@ -291,6 +306,10 @@ bool HelloPolycodeApp::Update() {
 	
 	cam2->Translate(direction);
 	cam1->Translate(speed,0,0);
+
+	direction = obj->getPosition() * .25;
+	direction.x = home-10;
+	cam3->setPosition(direction);
 	
     return core->updateAndRender();
 }
@@ -342,11 +361,19 @@ section::section(Number height1, Number width1, Number height2, Number width2, N
 }
 
 void section::setPosition(Vector3 pos){
+	walls[0]->setPosition(pos+Vector3(0,-height/2,0));
+	walls[1]->setPosition(pos+Vector3(0,height/2,0));
+	walls[2]->setPosition(pos+Vector3(0,0,-width/2));
+	walls[3]->setPosition(pos+Vector3(0,0,width/2));
+	for(int i=0; i<obstacles.size(); ++i){
+		Vector3 loc = obstacles[i]->getPosition() - position;
+		obstacles[i]->setPosition(loc + pos);
+	}
+	for(int i=0; i<enemies.size(); ++i){
+		Vector3 loc = enemies[i]->getPosition() - position;
+		enemies[i]->setPosition(loc + pos);
+	}
 	position = pos;
-	walls[0]->setPosition(position+Vector3(0,-height/2,0));
-	walls[1]->setPosition(position+Vector3(0,height/2,0));
-	walls[2]->setPosition(position+Vector3(0,0,-width/2));
-	walls[3]->setPosition(position+Vector3(0,0,width/2));
 }
 
 void section::setPosition(Number x, Number y, Number z){

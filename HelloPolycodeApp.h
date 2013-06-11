@@ -47,7 +47,7 @@ private:
 	ScreenLabel *boost_l;
 	ScreenLabel *speed_l;
 	CollisionScene *cscene;
-	Camera *cam1, *cam2;
+	Camera *cam1, *cam2, *cam3;
 	ScenePrimitive *obj;
 	Number home;	//stores current home x-coordinate
 	Number yspeed;
