@@ -26,35 +26,17 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	ScenePrimitive *tmp;
 	
 	//Create tunnel sections
-	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));
-	sections[0].walls[0]->setColor(0,0,.4,1);
-	sections[0].walls[1]->setColor(0,0,.8,1);
-	sections[0].walls[2]->setColor(0,0,.5,1);
-	sections[0].walls[3]->setColor(0,0,.5,1);
-	
-	sections.push_back(section(10, 10, 6, 8, 4, Vector3(31,0,0)));
-	sections[1].walls[0]->setColor(0,0,.2,1);
-	sections[1].walls[1]->setColor(0,0,.2,1);
-	sections[1].walls[2]->setColor(0,0,.3,1);
-	sections[1].walls[3]->setColor(0,0,.3,1);
-	
+	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));	
+	sections.push_back(section(10, 10, 6, 8, 4, Vector3(31,0,0)));	
 	sections.push_back(section(6, 8, 20, Vector3(43,0,0)));
-	sections[2].walls[0]->setColor(0,0,.4,1);
-	sections[2].walls[1]->setColor(0,0,.8,1);
-	sections[2].walls[2]->setColor(0,0,.5,1);
-	sections[2].walls[3]->setColor(0,0,.5,1);
-	
-	sections.push_back(section(6, 8, 4, 4, 4, Vector3(55,0,0)));
-	sections[3].walls[0]->setColor(0,0,.2,1);
-	sections[3].walls[1]->setColor(0,0,.2,1);
-	sections[3].walls[2]->setColor(0,0,.3,1);
-	sections[3].walls[3]->setColor(0,0,.3,1);
-	
+
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_BOX, .5,.5,.5);
+	tmp->setColor(.9,0,0,1);
+	tmp->setPosition(Vector3(0,0,0) + sections[2].position);
+	sections[2].enemies.push_back(tmp);
+
+	sections.push_back(section(6, 8, 4, 4, 4, Vector3(55,0,0)));	
 	sections.push_back(section(4, 4, 100, Vector3(107,0,0)));
-	sections[4].walls[0]->setColor(0,0,.4,1);
-	sections[4].walls[1]->setColor(0,0,.8,1);
-	sections[4].walls[2]->setColor(0,0,.5,1);
-	sections[4].walls[3]->setColor(0,0,.5,1);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	tmp->setColor(0,.8,0,1);
@@ -67,16 +49,7 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	sections[4].obstacles.push_back(tmp);
 	
 	sections.push_back(section(4, 4, 4, 8, 100, Vector3(207,0,0)));
-	sections[5].walls[0]->setColor(0,0,.2,1);
-	sections[5].walls[1]->setColor(0,0,.2,1);
-	sections[5].walls[2]->setColor(0,0,.3,1);
-	sections[5].walls[3]->setColor(0,0,.3,1);
-
 	sections.push_back(section(4, 8, 8, 4, 500, Vector3(507,0,0)));
-	sections[6].walls[0]->setColor(0,0,.2,1);
-	sections[6].walls[1]->setColor(0,0,.2,1);
-	sections[6].walls[2]->setColor(0,0,.3,1);
-	sections[6].walls[3]->setColor(0,0,.3,1);
 
 	//Add tunnel sections to scene
 	for(int i=0; i<sections.size(); ++i){
@@ -85,6 +58,9 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 		}
 		for(int j=0; j<sections[i].obstacles.size(); ++j){
 			cscene->addCollisionChild(sections[i].obstacles[j]);
+		}
+		for(int j=0; j<sections[i].enemies.size(); ++j){
+			cscene->addCollisionChild(sections[i].enemies[j]);
 		}
 	}
 	
@@ -258,6 +234,15 @@ bool HelloPolycodeApp::Update() {
 	pos.z += zspeed*elapsed;
 	pos.x += speed;
 	obj->setPosition(pos);
+
+	//Update enemies
+	for(int j=0; j<sections[sec].enemies.size(); ++j){
+		Vector3 direction = pos - sections[sec].enemies[j]->getPosition();
+		direction.x = 0;
+		direction.Normalize();
+		direction = direction * MAX_MOVE_SPEED*elapsed / 4;
+		sections[sec].enemies[j]->Translate(direction);
+	}
 	
 	//Test collisions
 	for(int j=0; j<sections[sec].walls.size(); ++j){	//Loop through walls in section
@@ -271,6 +256,13 @@ bool HelloPolycodeApp::Update() {
 		CollisionResult res = cscene->testCollision(obj, sections[sec].obstacles[j]);
 		if(res.collided) {
 			//TO DO
+		}
+	}
+	for(int j=0; j<sections[sec].enemies.size(); ++j){
+		CollisionResult res = cscene->testCollision(obj, sections[sec].enemies[j]);
+		if(res.collided){
+			obj->setPosition(sections[sections.size()-1].position + Vector3(sections[sections.size()-1].depth,0,0));
+
 		}
 	}
 
@@ -311,6 +303,10 @@ section::section(Number height, Number width, Number depth, Vector3 pos)
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth, height, .1));
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth, height, .1));
 	setPosition(pos);
+	walls[0]->setColor(0,0,.4,1);
+	walls[1]->setColor(0,0,.8,1);
+	walls[2]->setColor(0,0,.5,1);
+	walls[3]->setColor(0,0,.5,1);
 }
 
 section::section(Number height1, Number width1, Number height2, Number width2, Number depth, Vector3 pos)
@@ -338,6 +334,11 @@ section::section(Number height1, Number width1, Number height2, Number width2, N
 	walls[3]->setYaw(yaw_angle);
 	
 	setPosition(pos);
+
+	walls[0]->setColor(0,0,.2,1);
+	walls[1]->setColor(0,0,.2,1);
+	walls[2]->setColor(0,0,.3,1);
+	walls[3]->setColor(0,0,.3,1);
 }
 
 void section::setPosition(Vector3 pos){
