@@ -16,6 +16,13 @@ using namespace Polycode;
 
 #define MAX_AGE 3		//Time a msg should be on screen
 
+#define more_boost Color(0x00CC00FF)
+#define less_boost Color(0x806600FF)
+#define faster_move Color(0x9900FFFF)
+#define slower_move Color(0xCC2900FF)
+#define faster_recharge Color(0xFFFF00FF)
+#define slower_recharge Color(0xFF3300FF)
+
 enum section_type {normal, transition};
 
 struct section {
@@ -69,8 +76,11 @@ private:
 	short int x_in, y_in, z_in;
 
 	Number max_move, max_boost, boost_rate;
-	Color more_boost, less_boost, faster_move, slower_move, faster_recharge, slower_recharge;
+	//Color more_boost, less_boost, faster_move, slower_move, faster_recharge, slower_recharge;
 	
 	std::vector<section> sections;
+
+	bool addObstacle(Color c, Vector3 p);	//adds obstacle to last section in sections
+	bool addEnemy(Vector3 p);				//adds enemy to last section in sections
 };
 

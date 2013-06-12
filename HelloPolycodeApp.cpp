@@ -23,74 +23,23 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	
 	cscene = new CollisionScene();
 
-	more_boost = Color(0x00CC00FF);
-	less_boost = Color(0x806600FF);
-	faster_move = Color(0x9900FFFF);
-	slower_move = Color(0xCC2900FF);
-	faster_recharge = Color(0xFFFF00FF);
-	slower_recharge = Color(0xFF3300FF);
-
 	ScenePrimitive *tmp;
 	
 	//Create tunnel sections
 	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
-	tmp->setColor(more_boost);
-	tmp->setPosition(Vector3(4, 4,4) + sections.back().position);
-	tmp->setRoll(90);
-	sections.back().obstacles.push_back(tmp);
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(less_boost);
-	tmp->setPosition(Vector3(4, 4,-4) + sections.back().position);
-	sections.back().obstacles.push_back(tmp);
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
-	tmp->setColor(faster_move);
-	tmp->setPosition(Vector3(4, 0,4) + sections.back().position);
-	tmp->setRoll(90);
-	sections.back().obstacles.push_back(tmp);
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(slower_move);
-	tmp->setPosition(Vector3(4, 0,-4) + sections.back().position);
-	sections.back().obstacles.push_back(tmp);
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
-	tmp->setColor(faster_recharge);
-	tmp->setPosition(Vector3(4, -4,4) + sections.back().position);
-	tmp->setRoll(90);
-	sections.back().obstacles.push_back(tmp);
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(slower_recharge);
-	tmp->setPosition(Vector3(4, -4,-4) + sections.back().position);
-	sections.back().obstacles.push_back(tmp);	
-	
+	addObstacle(more_boost, Vector3(4,4,4));
+	addObstacle(less_boost, Vector3(4,4,-4));
+	addObstacle(faster_move, Vector3(4,0,4));
+	addObstacle(slower_move, Vector3(4,0,-4));
+	addObstacle(faster_recharge, Vector3(4,-4,4));
+	addObstacle(slower_recharge, Vector3(4,-4,-4));
 	sections.push_back(section(10, 10, 6, 8, 4, Vector3(31,0,0)));	
 	sections.push_back(section(6, 8, 20, Vector3(43,0,0)));
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_BOX, .5,.5,.5);
-	tmp->setColor(.9,0,0,1);
-	tmp->setPosition(Vector3(0,0,0) + sections.back().position);
-	sections.back().enemies.push_back(tmp);
-
+	addEnemy(Vector3(0,0,0));
 	sections.push_back(section(6, 8, 4, 4, 4, Vector3(55,0,0)));	
 	sections.push_back(section(4, 4, 100, Vector3(107,0,0)));
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
-	tmp->setColor(more_boost);
-	tmp->setPosition(Vector3(-40, 1,1) + sections.back().position);
-	tmp->setRoll(90);
-	sections.back().obstacles.push_back(tmp);
-
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
-	tmp->setColor(more_boost);
-	tmp->setPosition(Vector3(-35, -1,-1) + sections.back().position);
-	tmp->setRoll(90);
-	sections.back().obstacles.push_back(tmp);
-	
+	addObstacle(more_boost, Vector3(-40,1,1));
+	addObstacle(less_boost, Vector3(-35,-1,-1));
 	sections.push_back(section(4, 4, 4, 8, 100, Vector3(207,0,0)));
 	sections.push_back(section(4, 8, 8, 4, 500, Vector3(507,0,0)));
 
@@ -98,12 +47,6 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	for(int i=0; i<sections.size(); ++i){
 		for(int j=0; j<sections[i].walls.size(); ++j){
 			cscene->addCollisionChild(sections[i].walls[j]);
-		}
-		for(int j=0; j<sections[i].obstacles.size(); ++j){
-			cscene->addCollisionChild(sections[i].obstacles[j]);
-		}
-		for(int j=0; j<sections[i].enemies.size(); ++j){
-			cscene->addCollisionChild(sections[i].enemies[j]);
 		}
 	}
 	
@@ -424,6 +367,38 @@ void HelloPolycodeApp::addmsg(const String & text){
 	tmp->setPosition(0,450);
 	screen->addChild(tmp);
 	msgs.push_back(msg(tmp));
+}
+
+bool HelloPolycodeApp::addObstacle(Color c, Vector3 p){
+	if(p.x < -sections.back().depth/2 || p.x > sections.back().depth/2){	//check if position is within section
+		return false;
+	}
+	ScenePrimitive *tmp;
+	if(c == more_boost || c == faster_move || c == faster_recharge){
+		tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
+		tmp->setRoll(90);
+	}else if(c == less_boost || c == slower_move || c == slower_recharge){
+		tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	}else{	//unknown type
+		return false;
+	}
+	tmp->setColor(c);
+	tmp->setPosition(p + sections.back().position);
+	sections.back().obstacles.push_back(tmp);
+	cscene->addCollisionChild(tmp);
+	return true;
+}
+
+bool HelloPolycodeApp::addEnemy(Vector3 p){
+	if(p.x < -sections.back().depth/2 || p.x > sections.back().depth/2){	//check if position is within section
+		return false;
+	}
+	ScenePrimitive *tmp = new ScenePrimitive(ScenePrimitive::TYPE_BOX, .5,.5,.5);
+	tmp->setColor(.9,0,0,1);
+	tmp->setPosition(p + sections.back().position);
+	sections.back().enemies.push_back(tmp);
+	cscene->addCollisionChild(tmp);
+	return true;
 }
 
 section::section(Number height, Number width, Number depth, Vector3 pos)
