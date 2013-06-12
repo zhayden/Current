@@ -9,7 +9,7 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	CoreServices::getInstance()->getResourceManager()->addArchive("default.pak");
 	CoreServices::getInstance()->getResourceManager()->addDirResource("default", false);
 
-	Screen *screen = new Screen();
+	screen = new Screen();
 	label = new ScreenLabel("Welcome to the Flow", 32);
 	screen->addChild(label);
 
@@ -145,7 +145,12 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYDOWN);
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYUP);
-	
+
+	//add instruction msgs
+	addmsg("Arrow keys or WASD to move");
+	addmsg("Shift & Ctrl to speedup & slow");
+	addmsg("Space to restart");
+	addmsg("F1-F3 to change camera");
 }
 
 void HelloPolycodeApp::handleEvent(Event *e) {
@@ -333,24 +338,31 @@ bool HelloPolycodeApp::Update() {
 			if(ob->color == more_boost){
 				max_boost += 5;
 				ob->enabled = false;
+				addmsg("+5 to max boost");
 			}else if(ob->color == less_boost){
 				max_boost -= 5;
 				if(max_boost < 0){max_boost = 0;}
+				if(boost > max_boost){boost = max_boost;}
 				ob->enabled = false;
+				addmsg("-5 to max boost");
 			}else if(ob->color == faster_move){
 				max_move += 1;
 				ob->enabled = false;
+				addmsg("+1 to move speed");
 			}else if(ob->color == slower_move){
 				max_move -= 1;
 				if(max_move < 0){max_move = 0;}
 				ob->enabled = false;
+				addmsg("-1 to move speed");
 			}else if(ob->color == faster_recharge){
 				boost_rate += 2;
 				ob->enabled = false;
+				addmsg("+2 to boost recharge");
 			}else if(ob->color == slower_recharge){
 				boost_rate -= 2;
 				if(boost_rate < 0){boost_rate = 0;}
 				ob->enabled = false;
+				addmsg("-2 to boost recharge");
 			}
 		}
 	}
@@ -381,7 +393,6 @@ bool HelloPolycodeApp::Update() {
 	//Update Cameras
 	cam2->lookAt(pos);
 	Vector3 direction = obj->getPosition() - cam2->getPosition();
-	//direction.Normalize();
 	direction = direction * (MOVE_SPEED/2*elapsed);
 	direction.x = speed;
 	
@@ -391,8 +402,28 @@ bool HelloPolycodeApp::Update() {
 	direction = obj->getPosition() * .25;
 	direction.x = home-10;
 	cam3->setPosition(direction);
+
+	//Update msgs
+	for(std::list<msg>::iterator it = msgs.begin(); it != msgs.end(); ++it){
+		it->age += elapsed;
+		if(it->age > MAX_AGE){
+			screen->removeChild(it->label);
+			it = msgs.erase(it);
+		}
+	}
 	
     return core->updateAndRender();
+}
+
+void HelloPolycodeApp::addmsg(const String & text){
+	for(std::list<msg>::iterator it = msgs.begin(); it != msgs.end(); ++it){
+		it->label->setPosition(it->label->getScreenPosition()+Vector2(0,-22));
+	}
+
+	ScreenLabel *tmp = new ScreenLabel(text, 20);
+	tmp->setPosition(0,450);
+	screen->addChild(tmp);
+	msgs.push_back(msg(tmp));
 }
 
 section::section(Number height, Number width, Number depth, Vector3 pos)
@@ -484,3 +515,6 @@ Number section::getArea(Vector3 pos){
 	
 	return cw*ch;
 }
+
+msg::msg(ScreenLabel *label)
+	:label(label), age(0){}

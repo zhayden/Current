@@ -2,6 +2,7 @@
 #include "PolycodeView.h"
 #include "Polycode3DPhysics.h"
 #include <vector>
+#include <list>
 
 using namespace Polycode;
 
@@ -12,6 +13,8 @@ using namespace Polycode;
 #define MAX_BOOST 20
 #define BOOST_RATE 5	//points per second
 #define BOOST_BURN 20
+
+#define MAX_AGE 3		//Time a msg should be on screen
 
 enum section_type {normal, transition};
 
@@ -33,6 +36,13 @@ struct section {
 	Number getArea(Vector3 loc);
 };
 
+struct msg {
+	ScreenLabel *label;
+	Number age;
+
+	msg(ScreenLabel *label);
+};
+
 
 class HelloPolycodeApp : public EventHandler {
 public:
@@ -40,12 +50,15 @@ public:
     ~HelloPolycodeApp();
     bool Update();
     void handleEvent(Event *e);
+    void addmsg(const String & text);
     
 private:
 	Core *core;
+	Screen *screen;
 	ScreenLabel *label;
 	ScreenLabel *boost_l;
 	ScreenLabel *speed_l;
+	std::list<msg> msgs;
 	CollisionScene *cscene;
 	Camera *cam1, *cam2, *cam3;
 	ScenePrimitive *obj;
