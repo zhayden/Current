@@ -22,33 +22,23 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	screen->addChild(boost_l);
 	
 	cscene = new CollisionScene();
-
-	ScenePrimitive *tmp;
 	
 	//Create tunnel sections
-	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));
+	addSection(40,10,10);
 	addObstacle(more_boost, Vector3(4,4,4));
 	addObstacle(less_boost, Vector3(4,4,-4));
 	addObstacle(faster_move, Vector3(4,0,4));
 	addObstacle(slower_move, Vector3(4,0,-4));
 	addObstacle(faster_recharge, Vector3(4,-4,4));
 	addObstacle(slower_recharge, Vector3(4,-4,-4));
-	sections.push_back(section(10, 10, 6, 8, 4, Vector3(31,0,0)));	
-	sections.push_back(section(6, 8, 20, Vector3(43,0,0)));
+	addSection(4,8,4);
+	addSection(20,8,4);
 	addEnemy(Vector3(0,0,0));
-	sections.push_back(section(6, 8, 4, 4, 4, Vector3(55,0,0)));	
-	sections.push_back(section(4, 4, 100, Vector3(107,0,0)));
+	addSection(4,4,4);
+	addSection(100,4,4);
 	addObstacle(more_boost, Vector3(-40,1,1));
 	addObstacle(less_boost, Vector3(-35,-1,-1));
-	sections.push_back(section(4, 4, 4, 8, 100, Vector3(207,0,0)));
-	sections.push_back(section(4, 8, 8, 4, 500, Vector3(507,0,0)));
-
-	//Add tunnel sections to scene
-	for(int i=0; i<sections.size(); ++i){
-		for(int j=0; j<sections[i].walls.size(); ++j){
-			cscene->addCollisionChild(sections[i].walls[j]);
-		}
-	}
+	addSection(100,8,4);
 	
 	//player
 	obj = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 1,1,1);
@@ -399,6 +389,35 @@ bool HelloPolycodeApp::addEnemy(Vector3 p){
 	sections.back().enemies.push_back(tmp);
 	cscene->addCollisionChild(tmp);
 	return true;
+}
+
+void HelloPolycodeApp::addSection(Number length, Number endWidth, Number endHeight){
+	Number startWidth, startHeight;
+	Vector3 pos;
+	if(sections.size() > 0){
+		if(sections.back().type == normal){
+			startWidth = sections.back().width;
+			startHeight = sections.back().height;
+		}else{
+			startWidth = sections.back().width2;
+			startHeight = sections.back().height2;
+		}
+		pos = Vector3(sections.back().position.x + sections.back().depth/2 + length/2, 0, 0);
+	}else{
+		startWidth = endWidth;
+		startHeight = endHeight;
+		pos = Vector3(length/2, 0, 0);
+	}
+
+	if(startWidth == endWidth && startHeight == endHeight){
+		sections.push_back(section(startHeight, startWidth, length, pos));
+	}else{
+		sections.push_back(section(startHeight, startWidth, endHeight, endWidth, length, pos));
+	}
+
+	for(int i=0; i<sections.back().walls.size(); ++i){
+		cscene->addCollisionChild(sections.back().walls[i]);
+	}
 }
 
 section::section(Number height, Number width, Number depth, Vector3 pos)

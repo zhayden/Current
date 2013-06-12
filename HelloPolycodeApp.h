@@ -82,5 +82,6 @@ private:
 
 	bool addObstacle(Color c, Vector3 p);	//adds obstacle to last section in sections
 	bool addEnemy(Vector3 p);				//adds enemy to last section in sections
+	void addSection(Number length, Number endWidth, Number endHeight);
 };
 
