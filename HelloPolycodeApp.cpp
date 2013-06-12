@@ -35,9 +35,10 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	//Create tunnel sections
 	sections.push_back(section(10, 10, 20, Vector3(19,0,0)));
 
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
 	tmp->setColor(more_boost);
 	tmp->setPosition(Vector3(4, 4,4) + sections.back().position);
+	tmp->setRoll(90);
 	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
@@ -45,9 +46,10 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	tmp->setPosition(Vector3(4, 4,-4) + sections.back().position);
 	sections.back().obstacles.push_back(tmp);
 
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
 	tmp->setColor(faster_move);
 	tmp->setPosition(Vector3(4, 0,4) + sections.back().position);
+	tmp->setRoll(90);
 	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
@@ -55,9 +57,10 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	tmp->setPosition(Vector3(4, 0,-4) + sections.back().position);
 	sections.back().obstacles.push_back(tmp);
 
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
 	tmp->setColor(faster_recharge);
 	tmp->setPosition(Vector3(4, -4,4) + sections.back().position);
+	tmp->setRoll(90);
 	sections.back().obstacles.push_back(tmp);
 
 	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
@@ -76,14 +79,16 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	sections.push_back(section(6, 8, 4, 4, 4, Vector3(55,0,0)));	
 	sections.push_back(section(4, 4, 100, Vector3(107,0,0)));
 
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(0,.8,0,1);
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
+	tmp->setColor(more_boost);
 	tmp->setPosition(Vector3(-40, 1,1) + sections.back().position);
+	tmp->setRoll(90);
 	sections.back().obstacles.push_back(tmp);
 
-	tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
-	tmp->setColor(0,.8,0,1);
+	tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
+	tmp->setColor(more_boost);
 	tmp->setPosition(Vector3(-35, -1,-1) + sections.back().position);
+	tmp->setRoll(90);
 	sections.back().obstacles.push_back(tmp);
 	
 	sections.push_back(section(4, 4, 4, 8, 100, Vector3(207,0,0)));
