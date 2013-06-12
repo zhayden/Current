@@ -74,6 +74,9 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	cam3->setPosition(0,0,0);
 	cam3->lookAt(Vector3(10,0,0));
 
+	cam4 = new Camera(cscene);
+	cam4->lookAt(Vector3(15,0,0));
+
 	cscene->setActiveCamera(cam3);
 	
 	core->getInput()->addEventListener(this, InputEvent::EVENT_KEYDOWN);
@@ -83,7 +86,7 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	addmsg("Arrow keys or WASD to move");
 	addmsg("Shift & Ctrl to speedup & slow");
 	addmsg("Space to restart");
-	addmsg("F1-F3 to change camera");
+	addmsg("F1-F4 to change camera");
 }
 
 void HelloPolycodeApp::handleEvent(Event *e) {
@@ -117,6 +120,9 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 					break;
 					case KEY_F3:
 						cscene->setActiveCamera(cam3);
+					break;
+					case KEY_F4:
+						cscene->setActiveCamera(cam4);
 					break;
 					case KEY_LSHIFT:
 						x_in = 1;
@@ -335,6 +341,8 @@ bool HelloPolycodeApp::Update() {
 	direction = obj->getPosition() * .25;
 	direction.x = home-10;
 	cam3->setPosition(direction);
+
+	cam4->setPosition(obj->getPosition());
 
 	//Update msgs
 	for(std::list<msg>::iterator it = msgs.begin(); it != msgs.end(); ++it){

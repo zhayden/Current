@@ -67,7 +67,7 @@ private:
 	ScreenLabel *speed_l;
 	std::list<msg> msgs;
 	CollisionScene *cscene;
-	Camera *cam1, *cam2, *cam3;
+	Camera *cam1, *cam2, *cam3, *cam4;
 	ScenePrimitive *obj;
 	Number home;	//stores current home x-coordinate
 	Number yspeed;
