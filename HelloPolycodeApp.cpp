@@ -33,13 +33,61 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	addObstacle(slower_recharge, Vector3(4,-4,-4));
 	addSection(4,8,4);
 	addSection(20,8,4);
-	addEnemy(Vector3(0,0,0));
+	addEnemy(Vector3(-3,0,0));
 	addSection(4,4,4);
-	addSection(100,4,4);
+	addSection(10,4,4);
 	addObstacle(more_boost, Vector3(-40,1,1));
 	addObstacle(less_boost, Vector3(-35,-1,-1));
-	addSection(100,8,4);
-	
+	addSection(10,8,4);
+
+	// Hard-coded level (continued)
+	addSection(60,5,2);
+	addEnemy(Vector3(-20,0,-2));
+	addEnemy(Vector3(20,0,0));
+
+	addSection(30,10,10);
+	addSection(40,10,10);
+	addEnemy(Vector3(0,4,0));
+	addObstacle(more_boost, Vector3(-4,-4,-4));
+	addObstacle(less_boost, Vector3(-4,-4,4));
+	addObstacle(slower_move, Vector3(-4,4,-4));
+	addObstacle(faster_recharge, Vector3(-4,4,4));
+
+	addSection(60,2,2);
+	addEnemy(Vector3(-20,3,0));
+	addObstacle(faster_move, Vector3(0,0,0));
+
+	addSection(80,2,2);
+	addObstacle(more_boost, Vector3(0,0,0));
+
+	addSection(30,5,8);
+	addSection(40,5,8);
+	addEnemy(Vector3(0,-3.5,0));
+
+	addSection(30,6,6);
+	addSection(30,10,4);
+	addEnemy(Vector3(0,2,2));
+	addEnemy(Vector3(0,-2,-2));
+
+	addSection(30,4,10);
+	addSection(30,5,5);
+	addObstacle(slower_recharge, Vector3(0,0,0));
+
+	addSection(30,10,10);
+	addSection(30,4,4);
+	addSection(50,4,4);
+	addEnemy(Vector3(0,-1,1));
+
+	addSection(40,8,8);
+	addSection(20,5,5);
+	addSection(10,5,5);
+	addSection(20,3,3);
+	addSection(80,1,1);
+	addObstacle(faster_move, Vector3(30,0,0));
+	addObstacle(faster_move, Vector3(10,0,0));
+	addObstacle(faster_move, Vector3(-10,0,0));
+	addObstacle(faster_move, Vector3(-30,0,0));
+
 	//player
 	obj = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 1,1,1);
 	obj->setPosition(Vector3(10,-1,0));
@@ -207,7 +255,7 @@ bool HelloPolycodeApp::Update() {
 	//Update speeds
 	if(y_in && boost > 0){
 		yspeed += y_in*MOVE_SPEED_STEP;
-		boost -= BOOST_BURN*elapsed;
+		if( !z_in ) boost -= BOOST_BURN*elapsed;
 		if(yspeed > max_move) yspeed = max_move;
 		else if(yspeed < -max_move) yspeed = -max_move;
 	}else if(yspeed){
@@ -221,7 +269,7 @@ bool HelloPolycodeApp::Update() {
 	}
 	if(z_in && boost > 0){
 		zspeed += z_in*MOVE_SPEED_STEP;
-		boost -= BOOST_BURN*elapsed;
+		if( !y_in ) boost -= BOOST_BURN*elapsed;
 		if(zspeed > max_move) zspeed = max_move;
 		else if(zspeed < -max_move) zspeed = -max_move;
 	}else if(zspeed){
@@ -237,6 +285,9 @@ bool HelloPolycodeApp::Update() {
 		pos.x += x_in*max_move*elapsed;
 		boost -= BOOST_BURN*elapsed;
 	}
+
+	// Burn less overall if moving diagonally
+	if( y_in && z_in ) boost -= 1.4 * BOOST_BURN*elapsed;
 
 	//recharge boost
 	if(boost < max_boost){

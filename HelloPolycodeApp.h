@@ -12,7 +12,7 @@ using namespace Polycode;
 
 #define MAX_BOOST 20
 #define BOOST_RATE 5	//points per second
-#define BOOST_BURN 20
+#define BOOST_BURN 10
 
 #define MAX_AGE 3		//Time a msg should be on screen
 
