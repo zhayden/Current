@@ -21,26 +21,31 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	boost_l->setPosition(480, 30);
 	screen->addChild(boost_l);
 	
+	timer_l = new ScreenLabel("Time: 0", 28);
+	timer_l->setPosition(0, 30);
+	screen->addChild(timer_l);
+
 	cscene = new CollisionScene();
 	
 	//Create tunnel sections
 	addSection(40,10,10);
-	addObstacle(more_boost, Vector3(4,4,4));
-	addObstacle(less_boost, Vector3(4,4,-4));
-	addObstacle(faster_move, Vector3(4,0,4));
-	addObstacle(slower_move, Vector3(4,0,-4));
-	addObstacle(faster_recharge, Vector3(4,-4,4));
-	addObstacle(slower_recharge, Vector3(4,-4,-4));
+	addObstacle(time_up, Vector3(4,4,4));
+	addObstacle(time_down, Vector3(4,4,-4));
+	addObstacle(faster_move, Vector3(4,-4,4));
+	addObstacle(slower_move, Vector3(4,-4,-4));
+
 	addSection(4,8,4);
-	addSection(20,8,4);
+	addObstacle(time_up, Vector3(0,0,3));
+
+	addSection(20,7,7);
 	addEnemy(Vector3(-3,0,0));
+
 	addSection(4,4,4);
 	addSection(10,4,4);
-	addObstacle(more_boost, Vector3(-40,1,1));
-	addObstacle(less_boost, Vector3(-35,-1,-1));
-	addSection(10,8,4);
+	addObstacle(time_up, Vector3(-40,1,1));
+	addObstacle(time_up, Vector3(-35,-1,-1));
 
-	// Hard-coded level (continued)
+	addSection(10,8,4);
 	addSection(60,5,2);
 	addEnemy(Vector3(-20,0,-2));
 	addEnemy(Vector3(20,0,0));
@@ -48,45 +53,79 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	addSection(30,10,10);
 	addSection(40,10,10);
 	addEnemy(Vector3(0,4,0));
-	addObstacle(more_boost, Vector3(-4,-4,-4));
-	addObstacle(less_boost, Vector3(-4,-4,4));
+	addObstacle(time_up, Vector3(-4,-4,-4));
+	addObstacle(time_down, Vector3(-4,-4,4));
 	addObstacle(slower_move, Vector3(-4,4,-4));
-	addObstacle(faster_recharge, Vector3(-4,4,4));
+	addObstacle(faster_move, Vector3(-4,4,4));
 
 	addSection(60,2,2);
 	addEnemy(Vector3(-20,3,0));
-	addObstacle(faster_move, Vector3(0,0,0));
+	addObstacle(time_up, Vector3(0,0,0));
 
 	addSection(80,2,2);
-	addObstacle(more_boost, Vector3(0,0,0));
-
 	addSection(30,5,8);
+	addObstacle(time_up, Vector3(0,2,0));
+	addObstacle(faster_move, Vector3(0,-10,3));
+
 	addSection(40,5,8);
 	addEnemy(Vector3(0,-3.5,0));
 
 	addSection(30,6,6);
+	addObstacle(time_up, Vector3(5,0,0));
+	addObstacle(slower_move, Vector3(-5,0.5,0));
+
 	addSection(30,10,4);
 	addEnemy(Vector3(0,2,2));
 	addEnemy(Vector3(0,-2,-2));
 
 	addSection(30,4,10);
-	addSection(30,5,5);
-	addObstacle(slower_recharge, Vector3(0,0,0));
+	addObstacle(time_up, Vector3(0,0,2));
+	addObstacle(time_down, Vector3(0,-2,0));
 
-	addSection(30,10,10);
-	addSection(30,4,4);
-	addSection(50,4,4);
+	addSection(5,8,2);
+	addSection(40,8,3);
+	addObstacle(slower_move, Vector3(0,0,0));
+	addObstacle(slower_move, Vector3(0,0,1));
+	addObstacle(slower_move, Vector3(0,1,0));
+	addObstacle(slower_move, Vector3(0,1,1));
+	addObstacle(slower_move, Vector3(0,0,-1));
+	addObstacle(slower_move, Vector3(0,-1,0));
+	addObstacle(slower_move, Vector3(0,-1,-1));
+
+	addSection(30,5,5);
+	addObstacle(time_down, Vector3(0,0,-2));
+
+	addSection(10,10,10);
+	addObstacle(time_up, Vector3(3,3,3));
+
+	addSection(5,6,6);
+	addSection(40,6,6);
+	addEnemy(Vector3(10,0,4));
+	addEnemy(Vector3(10,4,4));
+	addEnemy(Vector3(10,-4,4));
+	addEnemy(Vector3(10,0,-4));
+	addEnemy(Vector3(10,4,-4));
+	addEnemy(Vector3(10,-4,-4));
+
+	addSection(10,4,4);
+	addSection(10,4,4);
 	addEnemy(Vector3(0,-1,1));
 
-	addSection(40,8,8);
-	addSection(20,5,5);
+	addSection(20,8,8);
 	addSection(10,5,5);
-	addSection(20,3,3);
-	addSection(80,1,1);
-	addObstacle(faster_move, Vector3(30,0,0));
-	addObstacle(faster_move, Vector3(10,0,0));
-	addObstacle(faster_move, Vector3(-10,0,0));
-	addObstacle(faster_move, Vector3(-30,0,0));
+	addObstacle(time_down, Vector3(0,0,1));
+
+	addSection(20,5,5);
+	addObstacle(time_up, Vector3(-2,0,0));
+	addEnemy(Vector3(2,0,0));
+
+	addSection(10,3,6);
+	addSection(10,6,3);
+	addObstacle(time_down, Vector3(0,0,0));
+
+	addSection(10,3,6);
+	addSection(5,1.6,1.6);
+	addSection(200,1.6,1.6);
 
 	//player
 	obj = new ScenePrimitive(ScenePrimitive::TYPE_BOX, 1,1,1);
@@ -95,6 +134,7 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	cscene->addCollisionChild(obj);
 
 	home = 10;
+	end_flag = 0;
 	
 	x_in = 0;
 	y_in = 0;
@@ -104,7 +144,7 @@ HelloPolycodeApp::HelloPolycodeApp(PolycodeView *view) : EventHandler() {
 	zspeed=0;
 
 	boost = MAX_BOOST;
-
+	game_time = START_TIME;
 	max_move = MAX_MOVE_SPEED;
 	max_boost = MAX_BOOST;
 	boost_rate = BOOST_RATE;
@@ -193,6 +233,8 @@ void HelloPolycodeApp::handleEvent(Event *e) {
 								sections[i].obstacles[j]->enabled = true;
 							}
 						}
+						end_flag = 0;
+						game_time = START_TIME;
 					break;
 				}
 			break;
@@ -238,7 +280,14 @@ bool HelloPolycodeApp::Update() {
 		label->setText("");	//Turn off intro msg after a little while
 	}
 	if(sec >= sections.size()){
-		label->setText("Game Over");	//Turn on end msg when no more sections
+
+		if( end_flag == 0 ) {
+			label->setText("Game Over: You escaped!");	//Turn on end msg when no more sections
+		} else if( end_flag == 1 ) {
+			label->setText("Game Over: You crashed");	//Turn on end msg when no more sections
+		} else if( end_flag == 2 ) {
+			label->setText("Game Over: Out of time");	//Turn on end msg when no more sections
+		}
 		return core->updateAndRender();
 	}
 	
@@ -250,12 +299,23 @@ bool HelloPolycodeApp::Update() {
 	Number elapsed = core->getElapsed();
 	speed *= elapsed;
 
+	//Update timer	
+	game_time -= elapsed;
+	ss.str("");
+	ss << "Time: " << (int)game_time;
+	timer_l->setText(ss.str());		//output timer
+	if(game_time <= 0){
+		obj->setPosition(sections.back().position + Vector3(sections.back().depth,0,0));
+		end_flag = 2;
+	}
+	
 	home += speed;	//Update home position
 	
 	//Update speeds
-	if(y_in && boost > 0){
+	pos =obj->getPosition();
+	if(y_in){
 		yspeed += y_in*MOVE_SPEED_STEP;
-		if( !z_in ) boost -= BOOST_BURN*elapsed;
+		//if( !z_in ) boost -= BOOST_BURN*elapsed;
 		if(yspeed > max_move) yspeed = max_move;
 		else if(yspeed < -max_move) yspeed = -max_move;
 	}else if(yspeed){
@@ -267,9 +327,9 @@ bool HelloPolycodeApp::Update() {
 			if(yspeed > 0) yspeed = 0;
 		}
 	}
-	if(z_in && boost > 0){
+	if(z_in){
 		zspeed += z_in*MOVE_SPEED_STEP;
-		if( !y_in ) boost -= BOOST_BURN*elapsed;
+		//if( !y_in ) boost -= BOOST_BURN*elapsed;
 		if(zspeed > max_move) zspeed = max_move;
 		else if(zspeed < -max_move) zspeed = -max_move;
 	}else if(zspeed){
@@ -285,9 +345,6 @@ bool HelloPolycodeApp::Update() {
 		pos.x += x_in*max_move*elapsed;
 		boost -= BOOST_BURN*elapsed;
 	}
-
-	// Burn less overall if moving diagonally
-	if( y_in && z_in ) boost -= 1.4 * BOOST_BURN*elapsed;
 
 	//recharge boost
 	if(boost < max_boost){
@@ -309,7 +366,8 @@ bool HelloPolycodeApp::Update() {
 		direction.x = 0;
 		direction.Normalize();
 		direction = direction * MAX_MOVE_SPEED*elapsed / 4;
-		sections[sec].enemies[j]->Translate(direction);
+		//sections[sec].enemies[j]->Translate(direction);
+		sections[sec].enemies[j]->setPosition(direction + sections[sec].enemies[j]->getPosition());
 	}
 	
 	//Test collisions
@@ -318,6 +376,10 @@ bool HelloPolycodeApp::Update() {
 		if(res.collided) {
 			pos += res.colNormal*res.colDist;
 			obj->setPosition(pos);
+			if(j==0 && yspeed<0){yspeed = 0;}
+			else if(j==1 && yspeed>0){yspeed = 0;}
+			else if(j==2 && zspeed<0){zspeed = 0;}
+			else if(j==3 && zspeed>0){zspeed = 0;}
 		}
 	}
 	for(int j=0; j<sections[sec].obstacles.size(); ++j){
@@ -325,16 +387,14 @@ bool HelloPolycodeApp::Update() {
 		CollisionResult res = cscene->testCollision(obj, sections[sec].obstacles[j]);
 		if(res.collided) {
 			ScenePrimitive *ob = sections[sec].obstacles[j];
-			if(ob->color == more_boost){
-				max_boost += 5;
+			if(ob->color == time_up){
+				game_time += 10;
 				ob->enabled = false;
-				addmsg("+5 to max boost");
-			}else if(ob->color == less_boost){
-				max_boost -= 5;
-				if(max_boost < 0){max_boost = 0;}
-				if(boost > max_boost){boost = max_boost;}
+				addmsg("10 seconds added");
+			}else if(ob->color == time_down){
+				game_time -= 10;
 				ob->enabled = false;
-				addmsg("-5 to max boost");
+				addmsg("10 seconds lost");
 			}else if(ob->color == faster_move){
 				max_move += 1;
 				ob->enabled = false;
@@ -344,15 +404,6 @@ bool HelloPolycodeApp::Update() {
 				if(max_move < 0){max_move = 0;}
 				ob->enabled = false;
 				addmsg("-1 to move speed");
-			}else if(ob->color == faster_recharge){
-				boost_rate += 2;
-				ob->enabled = false;
-				addmsg("+2 to boost recharge");
-			}else if(ob->color == slower_recharge){
-				boost_rate -= 2;
-				if(boost_rate < 0){boost_rate = 0;}
-				ob->enabled = false;
-				addmsg("-2 to boost recharge");
 			}
 		}
 	}
@@ -360,11 +411,12 @@ bool HelloPolycodeApp::Update() {
 		CollisionResult res = cscene->testCollision(obj, sections[sec].enemies[j]);
 		if(res.collided){
 			obj->setPosition(sections.back().position + Vector3(sections.back().depth,0,0));
-
+			end_flag = 1;
 		}
 	}
 
 	//Return to home x pos (collisions/movement may have thrown it off)
+	pos = obj->getPosition();
 	if(pos.x != home){
 		if(pos.x < home){
 			pos.x += MOVE_SPEED/4*elapsed;
@@ -423,10 +475,10 @@ bool HelloPolycodeApp::addObstacle(Color c, Vector3 p){
 		return false;
 	}
 	ScenePrimitive *tmp;
-	if(c == more_boost || c == faster_move || c == faster_recharge){
+	if(c == time_up || c == faster_move){
 		tmp = new ScenePrimitive(ScenePrimitive::TYPE_TORUS, .25, .1, 10,10);
 		tmp->setRoll(90);
-	}else if(c == less_boost || c == slower_move || c == slower_recharge){
+	}else if(c == time_down || c == slower_move){
 		tmp = new ScenePrimitive(ScenePrimitive::TYPE_SPHERE, .25, 10,10);
 	}else{	//unknown type
 		return false;
@@ -487,10 +539,14 @@ section::section(Number height, Number width, Number depth, Vector3 pos)
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth, height, .1));
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, depth, height, .1));
 	setPosition(pos);
-	walls[0]->setColor(0,0,.4,1);
-	walls[1]->setColor(0,0,.8,1);
-	walls[2]->setColor(0,0,.5,1);
-	walls[3]->setColor(0,0,.5,1);
+//	walls[0]->setColor(0,0,.4,1);
+//	walls[1]->setColor(0,0,.8,1);
+//	walls[2]->setColor(0,0,.5,1);
+//	walls[3]->setColor(0,0,.5,1);
+	walls[0]->loadTexture("cave.png");
+	walls[1]->loadTexture("cave.png");
+	walls[2]->loadTexture("cave.png");
+	walls[3]->loadTexture("cave.png");
 }
 
 section::section(Number height1, Number width1, Number height2, Number width2, Number depth, Vector3 pos)
@@ -508,7 +564,7 @@ section::section(Number height1, Number width1, Number height2, Number width2, N
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, dh,.1, w));
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, dw, h, .1));
 	walls.push_back(new ScenePrimitive(ScenePrimitive::TYPE_BOX, dw, h, .1));
-	
+
 	Number roll_angle = atan(hx/depth)*180/PI;
 	Number yaw_angle = atan(wx/depth)*180/PI;
 	
@@ -519,10 +575,14 @@ section::section(Number height1, Number width1, Number height2, Number width2, N
 	
 	setPosition(pos);
 
-	walls[0]->setColor(0,0,.2,1);
-	walls[1]->setColor(0,0,.2,1);
-	walls[2]->setColor(0,0,.3,1);
-	walls[3]->setColor(0,0,.3,1);
+//	walls[0]->setColor(0,0,.2,1);
+//	walls[1]->setColor(0,0,.2,1);
+//	walls[2]->setColor(0,0,.3,1);
+//	walls[3]->setColor(0,0,.3,1);
+	walls[0]->loadTexture("cave_dark.png");
+	walls[1]->loadTexture("cave_dark.png");
+	walls[2]->loadTexture("cave_dark.png");
+	walls[3]->loadTexture("cave_dark.png");
 }
 
 void section::setPosition(Vector3 pos){

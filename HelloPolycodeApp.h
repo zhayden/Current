@@ -9,19 +9,18 @@ using namespace Polycode;
 #define MOVE_SPEED 4.0		//speed when area == 100
 #define MOVE_SPEED_STEP 0.1
 #define MAX_MOVE_SPEED 4.0
+#define START_TIME 20
 
-#define MAX_BOOST 20
+#define MAX_BOOST 10
 #define BOOST_RATE 5	//points per second
-#define BOOST_BURN 10
+#define BOOST_BURN 20
 
-#define MAX_AGE 3		//Time a msg should be on screen
+#define MAX_AGE 5		//Time a msg should be on screen
 
-#define more_boost Color(0x00CC00FF)
-#define less_boost Color(0x806600FF)
-#define faster_move Color(0x9900FFFF)
-#define slower_move Color(0xCC2900FF)
-#define faster_recharge Color(0xFFFF00FF)
-#define slower_recharge Color(0xFF3300FF)
+#define faster_move Color(0x0000FFFF)
+#define slower_move Color(0xCC0066FF)
+#define time_up Color(0x00FF00FF)
+#define time_down Color(0xCC6600FF)
 
 enum section_type {normal, transition};
 
@@ -65,6 +64,7 @@ private:
 	ScreenLabel *label;
 	ScreenLabel *boost_l;
 	ScreenLabel *speed_l;
+	ScreenLabel *timer_l;
 	std::list<msg> msgs;
 	CollisionScene *cscene;
 	Camera *cam1, *cam2, *cam3, *cam4;
@@ -74,6 +74,8 @@ private:
 	Number zspeed;
 	Number boost;
 	short int x_in, y_in, z_in;
+	Number game_time;
+	int end_flag;
 
 	Number max_move, max_boost, boost_rate;
 	//Color more_boost, less_boost, faster_move, slower_move, faster_recharge, slower_recharge;

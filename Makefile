@@ -8,4 +8,5 @@ default:
 clean:
 	rm Current
 	rm default.pak
+	rm *~
 	
